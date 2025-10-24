@@ -29,6 +29,21 @@ export const cities = pgTable("cities", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: text("email").notNull().unique(),
+  password: text("password").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const sessions = pgTable("sessions", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const companies = pgTable("companies", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
@@ -55,7 +70,7 @@ export const companies = pgTable("companies", {
 
 export const profiles = pgTable("profiles", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: uuid("user_id").notNull().unique(),
+  userId: uuid("user_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
   companyId: uuid("company_id").references(() => companies.id, { onDelete: "set null" }),
   loginType: text("login_type").notNull().default("manual"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -64,11 +79,13 @@ export const profiles = pgTable("profiles", {
 
 export const userRoles = pgTable("user_roles", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: uuid("user_id").notNull(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   role: userRoleEnum("role").notNull().default("company_user"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertSessionSchema = createInsertSchema(sessions).omit({ id: true, createdAt: true });
 export const insertCountrySchema = createInsertSchema(countries).omit({ id: true, createdAt: true });
 export const insertStateSchema = createInsertSchema(states).omit({ id: true, createdAt: true });
 export const insertCitySchema = createInsertSchema(cities).omit({ id: true, createdAt: true });
@@ -76,6 +93,8 @@ export const insertCompanySchema = createInsertSchema(companies).omit({ id: true
 export const insertProfileSchema = createInsertSchema(profiles).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertUserRoleSchema = createInsertSchema(userRoles).omit({ id: true, createdAt: true });
 
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertSession = z.infer<typeof insertSessionSchema>;
 export type InsertCountry = z.infer<typeof insertCountrySchema>;
 export type InsertState = z.infer<typeof insertStateSchema>;
 export type InsertCity = z.infer<typeof insertCitySchema>;
@@ -83,6 +102,8 @@ export type InsertCompany = z.infer<typeof insertCompanySchema>;
 export type InsertProfile = z.infer<typeof insertProfileSchema>;
 export type InsertUserRole = z.infer<typeof insertUserRoleSchema>;
 
+export type User = typeof users.$inferSelect;
+export type Session = typeof sessions.$inferSelect;
 export type Country = typeof countries.$inferSelect;
 export type State = typeof states.$inferSelect;
 export type City = typeof cities.$inferSelect;

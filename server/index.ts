@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import { router } from "./routes";
+import { authRouter } from "./auth";
 import { registerVite } from "./vite";
 
 const app = express();
@@ -39,6 +40,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(authRouter);
 app.use(router);
 
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
