@@ -50,10 +50,19 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 (async () => {
-  const server = await registerVite(app);
+  await registerVite(app);
 
   const PORT = 5000;
-  server.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+  });
+
+  server.on("error", (err: any) => {
+    console.error("Server error:", err);
+    process.exit(1);
+  });
+
+  server.on("listening", () => {
+    console.log(`Server is listening on http://localhost:${PORT}`);
   });
 })();

@@ -5,18 +5,23 @@ import { createServer as createViteServer } from "vite";
 
 export async function registerVite(app: Express) {
   const vite = await createViteServer({
-    server: { middlewareMode: true },
+    server: { 
+      middlewareMode: true,
+      hmr: {
+        port: 5001,
+      },
+    },
     appType: "custom",
   });
 
   app.use(vite.middlewares);
 
-  app.use("*", async (req, res, next) => {
+  app.use(async (req, res, next) => {
     const url = req.originalUrl;
 
     try {
       let template = fs.readFileSync(
-        path.resolve(process.cwd(), "index.html"),
+        path.resolve(process.cwd(), "client/index.html"),
         "utf-8",
       );
 

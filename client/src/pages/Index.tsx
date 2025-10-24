@@ -1,21 +1,21 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Building2, Shield, Users } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 
 const Index = () => {
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     const checkAuth = async () => {
       const { user } = await getCurrentUser();
       if (user) {
-        navigate("/dashboard");
+        setLocation("/dashboard");
       }
     };
     checkAuth();
-  }, [navigate]);
+  }, [setLocation]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -30,7 +30,7 @@ const Index = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
             Comprehensive company registration and management system with secure authentication and role-based access control
           </p>
-          <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8">
+          <Button size="lg" onClick={() => setLocation("/auth")} className="text-lg px-8" data-testid="button-get-started">
             Get Started
           </Button>
         </div>
